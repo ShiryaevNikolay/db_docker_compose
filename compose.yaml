@@ -1,6 +1,7 @@
 version: '3.1'
 
 volumes:
+  db_data:
 
 services:
   # Навание для сервиса, контейнер для которой будем поднимать
@@ -17,8 +18,20 @@ services:
     # В этом примере в каталоге /data будет создан каталог postgres_db, 
     # который будет прокинут в каталог /va/postgres_db/data контейнера
     volumes:
-      - /data/postgres_db/:/var/lib/postgres_db/data
+      - db_data:/var/lib/postgres_db/data
     # Для первого запуска необходима инициализация базы данных.
     # Без пароля системы выдает ошибку. Поэтому задаем переменную POSTGRES_PASSWORD
     environment:
       POSTGRES_PASSWORD: postgres_password
+    networks:
+      - back-tier
+
+# Параметры, описанные в элементе networks, позволяют настроить виртуальную
+# сеть Docker Network для совместной работы нескольких контейнеров.
+networks:
+  # Связывает frontend с внешним миром
+  front-tier:
+    external: true
+    name: host
+  # Обеспечивает прямую связь между frontend и backend
+  back-tier:
